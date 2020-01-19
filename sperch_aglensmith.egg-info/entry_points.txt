@@ -1,0 +1,3 @@
+[console_scripts]
+sperch = sperch.__main__:main
+

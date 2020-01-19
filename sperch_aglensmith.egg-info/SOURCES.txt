@@ -1,0 +1,10 @@
+README.md
+sperch/__init__.py
+sperch/__main__.py
+sperch/sperch.py
+sperch/sperch.yaml
+sperch_aglensmith.egg-info/PKG-INFO
+sperch_aglensmith.egg-info/SOURCES.txt
+sperch_aglensmith.egg-info/dependency_links.txt
+sperch_aglensmith.egg-info/entry_points.txt
+sperch_aglensmith.egg-info/top_level.txt

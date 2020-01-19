@@ -1,0 +1,7 @@
+excludes:
+  - '*sperch-results*'
+  - '*node_modules*'
+make_copies: true
+definitions_outfile: 'files.txt'
+paths_outfile: 'paths.txt'
+report_outfile: 'report.md'
