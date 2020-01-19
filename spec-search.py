@@ -18,7 +18,8 @@ from datetime import datetime
 
 # for dirs and files
 EXCLUDES = [
-    "*node_modules*"
+    "*node_modules*",
+    "spec-search-results*"
 ]
 
 ###############################################################################
@@ -164,7 +165,7 @@ def process_options(options):
     if options.copy:
         specs = find_swagger(options.dir, excludes=EXCLUDES)
         for s in specs:
-            dest = os.getcwd() + "/copies" + s.split(options.dir)[-1]
+            dest = os.getcwd() + "/spec-search-results" + s.split(options.dir)[-1]
             print(dest)
             copy_swagger(s, dest)
         default = False
