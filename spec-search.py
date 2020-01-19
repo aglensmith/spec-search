@@ -1,4 +1,4 @@
-#!/usr/bin/env pytho
+#!/usr/bin/env python3
 
 import json
 import os
@@ -56,11 +56,9 @@ def find_swagger(directory, includes=None, excludes=None):
 def get_all_paths(swagger_parsed_list):
     paths = []
     for s in swagger_parsed_list:
-        paths.extend(get_paths(s))
+        for k,v in s["paths"].items():
+            paths.append(k)
     return paths
-
-def get_paths(swagger_parsed):
-        return [k for k,v in swagger_parsed["paths"].items()]
 
 def parse_all_swagger(swagger_list):
     parsed_swagger = []
@@ -75,11 +73,7 @@ def parse_swagger(file_path):
 
 def parse_yaml(file_path):
     with open(file_path, 'r') as stream:
-        try:
-            return yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            # print(exc)
-            return {}
+        return yaml.safe_load(stream)
 
 def build_report(swagger):
     report = [
@@ -112,6 +106,7 @@ def is_operation(k):
   ]
 
 def copy_swagger(swagger, dest):
+    os.makedirs(os.path.dirname(dest), exist_ok=True)
     shutil.copyfile(swagger, dest)
 
 def print_swagger_paths(swaggers_paths):
@@ -122,7 +117,6 @@ def print_swagger_paths(swaggers_paths):
 def print_all_paths(swagger_parsed):
     for p in get_all_paths(swagger_parsed):
         print(p)
-
 
 def write_list(list, filename):
     """writes each element in a list to a new line in a file"""
@@ -151,15 +145,29 @@ def get_parser():
     p = argparse.ArgumentParser(prog="spec-search", description="Find OAS files in many repos", epilog="...awesomely")
     p.add_argument('--dir', type=str, default=os.getcwd(), help="Directory to recursively search; defaults to CWD.")
     p.add_argument('--write', choices=['files', 'paths', 'report', 'all', 'none'], default='none', help="Writes chosen results to a file")
-    p.add_argument('--print', choices=['files', 'paths', 'report', 'all', 'none'], default='files', help="Prints chosen results")
+    p.add_argument('--print', choices=['files', 'paths', 'report', 'all', 'none'], default='none', help="Prints chosen results")
+    p.add_argument('--copy', action="store_true", help="copy and aggregate files into a single dir")
     p.add_argument('--out', type=str, nargs=3,  action="append", default=['files.txt','paths.txt', 'report.md'],help="Optionally list outfiles for --write")
     p.add_argument('--version', action='version', version='%(prog)s 2.0')
     return p
+
+def print_paths(dir):
+    swagger_files = find_swagger(dir, excludes=EXCLUDES)
+    paths = get_all_paths(parse_all_swagger(swagger_files))
+    for p in paths:
+        print(p)
 
 def process_options(options):
 
     default = True
 
+    if options.copy:
+        specs = find_swagger(options.dir, excludes=EXCLUDES)
+        for s in specs:
+            dest = os.getcwd() + "/copies" + s.split(options.dir)[-1]
+            print(dest)
+            copy_swagger(s, dest)
+        default = False
     if options.write == "files":
         specs = find_swagger(options.dir, excludes=EXCLUDES)
         write_list(specs, options.out[0])
@@ -178,8 +186,10 @@ def process_options(options):
         for i in build_report(["test", "test2"]):
             print(i)
         default = False
+    if options.print == "paths":
+        print_paths(options.dir)
+        default = False
     if default:
-        print("default")
         specs = find_swagger(options.dir, excludes=EXCLUDES)
         print_swagger_paths(specs)
 
